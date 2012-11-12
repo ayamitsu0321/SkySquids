@@ -2,7 +2,7 @@ package skysquids;
 
 import net.minecraft.src.*;
 
-public class EntitySquidSky extends EntityCreature
+public class EntitySquidSky extends EntityCreature implements IAnimals
 {
     public float field_21089_a = 0.0F;
     public float field_21088_b = 0.0F;
@@ -12,12 +12,12 @@ public class EntitySquidSky extends EntityCreature
     public float field_21084_h = 0.0F;
     public float tentacleAngle = 0.0F;
     public float lastTentacleAngle = 0.0F;
-    private float randomMotionSpeed = 0.0F;
+    protected float randomMotionSpeed = 0.0F;
     private float field_21080_l = 0.0F;
     private float field_21079_m = 0.0F;
-    private float randomMotionVecX = 0.0F;
-    private float randomMotionVecY = 0.0F;
-    private float randomMotionVecZ = 0.0F;
+    protected float randomMotionVecX = 0.0F;
+    protected float randomMotionVecY = 0.0F;
+    protected float randomMotionVecZ = 0.0F;
 
     public EntitySquidSky(World var1)
     {
@@ -25,121 +25,107 @@ public class EntitySquidSky extends EntityCreature
         this.texture = "/mob/squid.png";
         this.setSize(0.95F, 0.95F);
         this.field_21080_l = 1.0F / (this.rand.nextFloat() + 1.0F) * 0.2F;
+		this.rand.setSeed(187L);
     }
 
-    /**
-     * Called when the mob is falling. Calculates and applies fall damage.
-     */
-    protected void fall(float var1) {}
+	@Override
+	protected void fall(float par1) {}
 
     public int getMaxHealth()
     {
         return 10;
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
+    @Override
     public void writeEntityToNBT(NBTTagCompound var1)
     {
         super.writeEntityToNBT(var1);
     }
 
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
+    @Override
     public void readEntityFromNBT(NBTTagCompound var1)
     {
         super.readEntityFromNBT(var1);
     }
 
-    /**
-     * Returns the sound this mob makes while it's alive.
-     */
+    @Override
     protected String getLivingSound()
     {
         return null;
     }
 
-    /**
-     * Returns the sound this mob makes when it is hurt.
-     */
+    @Override
     protected String getHurtSound()
     {
         return null;
     }
 
-    /**
-     * Returns the sound this mob makes on death.
-     */
+    @Override
     protected String getDeathSound()
     {
         return null;
     }
 
-    /**
-     * Returns the volume for the sounds this mob makes.
-     */
+    @Override
     protected float getSoundVolume()
     {
         return 0.4F;
     }
 
-    /**
-     * Returns the item ID for the item the mob drops on death.
-     */
+    @Override
     protected int getDropItemId()
     {
         return 0;
     }
 
-    /**
-     * Drop 0-2 items of this living's type
-     */
-    protected void dropFewItems(boolean var1, int var2)
-    {
-        int var3 = this.rand.nextInt(3 + var2) + 1;
+    @Override
+	protected void dropFewItems(boolean par1, int par2)
+	{
+		int var3 = this.rand.nextInt(3 + par2) + 1;
 
-        for (int var4 = 0; var4 < var3; ++var4)
-        {
-            this.entityDropItem(new ItemStack(Item.dyePowder, 1, 0), 0.0F);
-        }
-    }
+		for (int var4 = 0; var4 < var3; ++var4)
+		{
+			this.entityDropItem(new ItemStack(Item.dyePowder, 1, 0), 0.0F);
+		}
+	}
 
+	@Override
     public boolean canBreatheUnderwater()
     {
         return true;
     }
 
-    /**
-     * Get number of ticks, at least during which the living entity will be silent.
-     */
+    @Override
     public int getTalkInterval()
     {
         return 120;
     }
+	
+	@Override
+	protected boolean canDespawn()
+    {
+        return true;
+    }
 
-    /**
-     * Called when a player interacts with a mob. e.g. gets milk from a cow, gets into the saddle on a pig.
-     */
+	@Override
+    protected int getExperiencePoints(EntityPlayer player)
+    {
+        return 1 + this.worldObj.rand.nextInt(3);
+    }
+
+    @Override
     public boolean interact(EntityPlayer var1)
     {
         return super.interact(var1);
     }
 
-    /**
-     * Checks if this entity is inside water (if inWater field is true as a result of handleWaterMovement() returning
-     * true)
-     */
+    @Override
     public boolean isInWater()
     {
         return this.worldObj.handleMaterialAcceleration(this.boundingBox.expand(0.0D, -0.6000000238418579D, 0.0D), Material.water, this);
     }
 
-    /**
-     * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
-     * use this to react to sunlight and start to burn.
-     */
+    @Override
     public void onLivingUpdate()
     {
         super.onLivingUpdate();
@@ -164,23 +150,39 @@ public class EntitySquidSky extends EntityCreature
         if (this.field_21085_g < (float)Math.PI)
         {
             var1 = this.field_21085_g / (float)Math.PI;
-            this.tentacleAngle = MathHelper.sin(var1 * var1 * (float)Math.PI) * (float)Math.PI * 0.25F;
+        	
+        	if (this.worldObj.isRemote)
+        	{
+            	this.tentacleAngle = MathHelper.sin(var1 * var1 * (float)Math.PI) * (float)Math.PI * 0.25F;
+        	}
 
             if ((double)var1 > 0.75D)
             {
-                this.randomMotionSpeed = 1.0F;
-                this.field_21079_m = 1.0F;
+            	if (!this.worldObj.isRemote)
+            	{
+                	this.randomMotionSpeed = 1.0F;
+            	}
+            	else
+            	{
+            		this.field_21079_m = 1.0F;
+            	}
             }
-            else
+        	else if (this.worldObj.isRemote)
             {
                 this.field_21079_m *= 0.8F;
             }
         }
         else
         {
-            this.tentacleAngle = 0.0F;
-            this.randomMotionSpeed *= 0.9F;
-            this.field_21079_m *= 0.99F;
+        	if (!this.worldObj.isRemote)
+        	{
+            	this.randomMotionSpeed *= 0.9F;
+        	}
+        	else
+        	{
+            	this.tentacleAngle = 0.0F;
+            	this.field_21079_m *= 0.99F;
+        	}
         }
 
         if (!this.worldObj.isRemote)
@@ -189,19 +191,18 @@ public class EntitySquidSky extends EntityCreature
             this.motionY = (double)(this.randomMotionVecY * this.randomMotionSpeed);
             this.motionY *= 0.9800000190734863D;
             this.motionZ = (double)(this.randomMotionVecZ * this.randomMotionSpeed);
+        	this.motionY -= 0.012086000000000003D;
         }
-
-        var1 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
-        this.renderYawOffset += (-((float)Math.atan2(this.motionX, this.motionZ)) * 180.0F / (float)Math.PI - this.renderYawOffset) * 0.1F;
-        this.rotationYaw = this.renderYawOffset;
-        this.field_21087_c += (float)Math.PI * this.field_21079_m * 1.5F;
-        this.field_21089_a += (-((float)Math.atan2((double)var1, this.motionY)) * 180.0F / (float)Math.PI - this.field_21089_a) * 0.1F;
-        this.motionY -= 0.012086000000000003D;
+    	else
+    	{
+	    	var1 = MathHelper.sqrt_double(this.motionX * this.motionX + this.motionZ * this.motionZ);
+	        this.renderYawOffset += (-((float)Math.atan2(this.motionX, this.motionZ)) * 180.0F / (float)Math.PI - this.renderYawOffset) * 0.1F;
+	        this.rotationYaw = this.renderYawOffset;
+	        this.field_21087_c += (float)Math.PI * this.field_21079_m * 1.5F;
+	        this.field_21089_a += (-((float)Math.atan2((double)var1, this.motionY)) * 180.0F / (float)Math.PI - this.field_21089_a) * 0.1F;
+    	}
     }
 
-    /**
-     * Checks if the entity's current position is a valid location to spawn this entity.
-     */
 	@Override
     public boolean getCanSpawnHere()
 	{
@@ -213,24 +214,26 @@ public class EntitySquidSky extends EntityCreature
 		return this.worldObj.countEntities(skysquids.EntitySquidSky.class);
 	}
 
-    /**
-     * Will return how many at most can spawn in a chunk at once.
-     */
+    @Override
     public int getMaxSpawnedInChunk()
     {
         return 4;
     }
 
-    /**
-     * returns true if this entity is by a ladder, false otherwise
-     */
+    @Override
     public boolean isOnLadder()
     {
         return false;
     }
 
+	@Override
     protected void updateEntityActionState()
     {
+    	if (this.worldObj.isRemote)
+    	{
+    		return;
+    	}
+    	
         ++this.entityAge;
 
         if (this.entityAge > 100)
@@ -241,16 +244,14 @@ public class EntitySquidSky extends EntityCreature
         {
             float var1 = this.rand.nextFloat() * (float)Math.PI * 2.0F;
             this.randomMotionVecX = MathHelper.cos(var1) * 0.2F;
-        	this.randomMotionVecY = -0.1F + this.rand.nextFloat() * 0.2F;
+        	this.randomMotionVecY = -0.05F + this.rand.nextFloat() * 0.2F;
             this.randomMotionVecZ = MathHelper.sin(var1) * 0.2F;
         }
 
         this.despawnEntity();
     }
 
-    /**
-     * Moves the entity based on the specified heading.  Args: strafe, forward
-     */
+    @Override
     public void moveEntityWithHeading(float var1, float var2)
     {
         this.moveEntity(this.motionX, this.motionY, this.motionZ);
