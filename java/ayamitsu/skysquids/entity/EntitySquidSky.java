@@ -3,12 +3,11 @@ package ayamitsu.skysquids.entity;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ayamitsu0321 on 2015/04/05.
@@ -31,11 +30,17 @@ public class EntitySquidSky extends EntitySquid {
 
     @SuppressWarnings("unchecked")
     public void changeTask() {
-        for (EntityAITasks.EntityAITaskEntry entityAITaskEntry : (List<EntityAITasks.EntityAITaskEntry>)this.tasks.taskEntries) {
+        EntityAIBase ai = null;
+
+        for (EntityAITasks.EntityAITaskEntry entityAITaskEntry : (Set<EntityAITasks.EntityAITaskEntry>)this.tasks.taskEntries) {
             if (entityAITaskEntry.priority == 0) {
-                entityAITaskEntry.action = new EntitySquidSky.AIMoveRandom();
-                //System.out.println("has changed AI to:" + entityAITaskEntry.action.getClass());
+                ai = entityAITaskEntry.action;
             }
+        }
+
+        if (ai != null) {
+            this.tasks.removeTask(ai);
+            this.tasks.addTask(0, new EntitySquidSky.AIMoveRandom());
         }
     }
 
