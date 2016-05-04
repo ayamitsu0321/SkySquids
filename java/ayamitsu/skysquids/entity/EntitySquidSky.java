@@ -3,12 +3,11 @@ package ayamitsu.skysquids.entity;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ayamitsu0321 on 2015/04/05.
@@ -31,11 +30,17 @@ public class EntitySquidSky extends EntitySquid {
 
     @SuppressWarnings("unchecked")
     public void changeTask() {
-        for (EntityAITasks.EntityAITaskEntry entityAITaskEntry : (List<EntityAITasks.EntityAITaskEntry>)this.tasks.taskEntries) {
+        EntityAIBase ai = null;
+
+        for (EntityAITasks.EntityAITaskEntry entityAITaskEntry : (Set<EntityAITasks.EntityAITaskEntry>)this.tasks.taskEntries) {
             if (entityAITaskEntry.priority == 0) {
-                entityAITaskEntry.action = new EntitySquidSky.AIMoveRandom();
-                //System.out.println("has changed AI to:" + entityAITaskEntry.action.getClass());
+                ai = entityAITaskEntry.action;
             }
+        }
+
+        if (ai != null) {
+            this.tasks.removeTask(ai);
+            this.tasks.addTask(0, new EntitySquidSky.AIMoveRandom());
         }
     }
 
@@ -105,12 +110,12 @@ public class EntitySquidSky extends EntitySquid {
     }
 
     @Override
-    public boolean func_175567_n() {
+    public boolean hasMovementVector() {
         return this._randomMotionVecX != 0.0F || this._randomMotionVecY != 0.0F || this._randomMotionVecZ != 0.0F;
     }
 
     @Override
-    public void func_175568_b(float p_175568_1_, float p_175568_2_, float p_175568_3_) {
+    public void setMovementVector(float p_175568_1_, float p_175568_2_, float p_175568_3_) {
         this._randomMotionVecX = p_175568_1_;
         this._randomMotionVecY = p_175568_2_;
         this._randomMotionVecZ = p_175568_3_;
@@ -127,7 +132,7 @@ public class EntitySquidSky extends EntitySquid {
 
 
     class AIMoveRandom extends EntityAIBase {
-        private EntitySquid field_179476_a = EntitySquidSky.this;
+        private EntitySquid squid = EntitySquidSky.this;
         //private static final String __OBFID = "CL_00002232";
 
         AIMoveRandom() {
@@ -138,16 +143,16 @@ public class EntitySquidSky extends EntitySquid {
         }
 
         public void updateTask() {
-            int i = this.field_179476_a.getAge();
+            int i = this.squid.getAge();
 
             if (i > 100) {
-                this.field_179476_a.func_175568_b(0.0F, 0.0F, 0.0F);
-            } else if ((this.field_179476_a.getRNG().nextInt(50) == 0) || !this.field_179476_a.func_175567_n()) {
-                float f = this.field_179476_a.getRNG().nextFloat() * 3.141593F * 2.0F;
+                this.squid.setMovementVector(0.0F, 0.0F, 0.0F);
+            } else if ((this.squid.getRNG().nextInt(50) == 0) || !this.squid.hasMovementVector()) {
+                float f = this.squid.getRNG().nextFloat() * 3.141593F * 2.0F;
                 float f1 = MathHelper.cos(f) * 0.2F;
-                float f2 = -0.1F + this.field_179476_a.getRNG().nextFloat() * 0.2F;
+                float f2 = -0.1F + this.squid.getRNG().nextFloat() * 0.2F;
                 float f3 = MathHelper.sin(f) * 0.2F;
-                this.field_179476_a.func_175568_b(f1, f2, f3);
+                this.squid.setMovementVector(f1, f2, f3);
             }
         }
     }
