@@ -40,30 +40,30 @@ public class SkySquids {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         //EntityRegistry.registerGlobalEntityID(EntitySquidSky.class, "skysquids.SkySquid", 233, 0x000000, 0x000000);
-        EntityRegistry.registerModEntity(EntitySquidSky.class, "skysquids.SkySquid", 0, this, 64, 3, true);
+        EntityRegistry.registerModEntity(EntitySquidSky.class, "SkySquid", 0, this, 64, 3, true, 0x000000, 0x000000);
         EntitySpawnPlacementRegistry.setPlacementType(EntitySquidSky.class, EntityLiving.SpawnPlacementType.ON_GROUND);
         EntityRegistry.addSpawn(EntitySquidSky.class, 10, 4, 4, EnumCreatureType.MONSTER,
-                Biomes.ocean,
-                Biomes.deepOcean,
-                Biomes.beach,
-                Biomes.forest,
-                Biomes.forestHills,
-                Biomes.birchForest,
-                Biomes.birchForestHills,
-                Biomes.extremeHills,
-                Biomes.extremeHillsEdge,
-                Biomes.extremeHillsPlus,
-                Biomes.jungle,
-                Biomes.jungleEdge,
-                Biomes.jungleHills,
-                Biomes.river,
-                Biomes.plains,
-                Biomes.taiga,
-                Biomes.taigaHills,
-                Biomes.megaTaiga,
-                Biomes.megaTaigaHills,
-                Biomes.savanna,
-                Biomes.savannaPlateau
+                Biomes.OCEAN,
+                Biomes.DEEP_OCEAN,
+                Biomes.BEACH,
+                Biomes.FOREST,
+                Biomes.FOREST_HILLS,
+                Biomes.BIRCH_FOREST,
+                Biomes.BIRCH_FOREST_HILLS,
+                Biomes.EXTREME_HILLS,
+                Biomes.EXTREME_HILLS_EDGE,
+                Biomes.EXTREME_HILLS_WITH_TREES,
+                Biomes.JUNGLE,
+                Biomes.JUNGLE_EDGE,
+                Biomes.JUNGLE_HILLS,
+                Biomes.RIVER,
+                Biomes.PLAINS,
+                Biomes.TAIGA,
+                Biomes.TAIGA_HILLS,
+                Biomes.MUTATED_TAIGA,
+                Biomes.REDWOOD_TAIGA_HILLS,
+                Biomes.SAVANNA,
+                Biomes.SAVANNA_PLATEAU
         );
         this.proxy.preInit();
     }
